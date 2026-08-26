@@ -30,7 +30,14 @@ end)
 RegisterNetEvent('qb-trucker:server:01101110', function(drops)
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
+    if not Player or Player.PlayerData.job.name ~= 'trucker' then return end
     drops = tonumber(drops)
+    if not drops then return end
+    drops = math.floor(drops)
+    if drops < 1 then return end
+    if drops > Config.TruckerJobMaxDrops then
+        drops = Config.TruckerJobMaxDrops
+    end
     local bonus = 0
 
     if drops >= 5 then
