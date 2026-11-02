@@ -466,9 +466,19 @@ RegisterNetEvent('qb-trucker:client:SpawnVehicle', function()
         local veh = NetToVeh(netId)
         SetVehicleNumberPlateText(veh, "TRUK" .. tostring(math.random(1000, 9999)))
         SetEntityHeading(veh, coords.w)
-        SetVehicleLivery(veh, 1)
-        SetVehicleColours(veh, 122, 122)
-        exports['LegacyFuel']:SetFuel(veh, 100.0)
+        local vehicleConfig = Config.TruckerJobVehicles[vehicleInfo]
+        if vehicleConfig then
+            if vehicleConfig.livery ~= nil and vehicleConfig.livery ~= false then
+                SetVehicleLivery(veh, vehicleConfig.livery)
+            end
+            if vehicleConfig.colors then
+                SetVehicleColours(veh, vehicleConfig.colors.primary, vehicleConfig.colors.secondary)
+            end
+            for extraId, enabled in pairs(vehicleConfig.extras or {}) do
+                SetVehicleExtra(veh, tonumber(extraId), enabled and 0 or 1)
+            end
+            exports[Config.FuelResource]:SetFuel(veh, vehicleConfig.fuel or 100.0)
+        end
         exports['qb-menu']:closeMenu()
         TaskWarpPedIntoVehicle(PlayerPedId(), veh, -1)
         SetEntityAsMissionEntity(veh, true, true)
