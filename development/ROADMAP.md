@@ -21,3 +21,11 @@
 - [ ] Document deployment instructions and compatibility changes before moving to the development server.
 
 Priorities here are exploratory; do not interrupt ongoing pm-marlowe implementation without an explicit development decision.
+
+## Current implementation status
+
+- [x] Jetsam grade-based truck access and vehicle configuration.
+- [x] Refundable checkout, cooldown, revised delivery compensation and government tax posting.
+- [x] Companion PM Shops delivery stop integration.
+- [ ] FiveM integration testing, financial ledger verification and further security review.
+- [ ] Future dispatch and logistics management, only when separately approved.
