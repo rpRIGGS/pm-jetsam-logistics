@@ -102,6 +102,7 @@ RegisterNetEvent('qb-trucker:server:01101110', function()
     player.Functions.AddJobReputation(drops)
     player.Functions.AddMoney('bank', payment, 'jetsam-delivery-earnings')
     notify(src, 'success.you_earned', { value = payment }, 'success')
+    TriggerClientEvent('qb-trucker:client:PayoutComplete', src)
 end)
 
 RegisterNetEvent('qb-trucker:server:nano', function()
