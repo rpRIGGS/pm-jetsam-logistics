@@ -54,6 +54,17 @@ RegisterNetEvent('qb-trucker:server:DoBail', function(checkout, model)
     end
 end)
 
+RegisterNetEvent('qb-trucker:server:AssignStop', function(shop)
+    local player = QBCore.Functions.GetPlayer(source)
+    if not eligible(player) or type(shop) ~= 'string' then return end
+    local route = Routes[player.PlayerData.citizenid]
+    if not route or not route.active or route.assigned or (route.completed and route.completed[shop]) then return end
+    local ok, stop = pcall(function() return exports['qb-shops']:GetDeliveryStop(shop) end)
+    if not ok or not stop then return end
+    route.assigned = shop
+    route.assignedAt = os.time()
+end)
+
 -- Only server-defined qb-shops delivery coordinates qualify for payment.
 RegisterNetEvent('qb-trucker:server:CompleteDrop', function(shop)
     local src = source
@@ -62,13 +73,14 @@ RegisterNetEvent('qb-trucker:server:CompleteDrop', function(shop)
     local route = Routes[player.PlayerData.citizenid]
     if not route or not route.active or route.drops >= Config.TruckerJobMaxDrops then return end
     route.completed = route.completed or {}
-    if route.completed[shop] then return end
+    if route.completed[shop] or route.assigned ~= shop or os.time() - (route.assignedAt or os.time()) < 5 then return end
     local ok, stop = pcall(function() return exports['qb-shops']:GetDeliveryStop(shop) end)
     if not ok or not stop then return end
     if #(GetEntityCoords(GetPlayerPed(src)) - vector3(stop.x, stop.y, stop.z)) > 10.0 then return end
     local restocked, success = pcall(function() return exports['qb-shops']:RestockFromJetsam(shop) end)
     if not restocked or success ~= true then return end
     route.completed[shop] = true
+    route.assigned = nil
     route.drops = route.drops + 1
 end)
 
