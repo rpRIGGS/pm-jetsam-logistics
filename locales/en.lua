@@ -1,6 +1,8 @@
 local Translations = {
     error = {
-        no_deposit = "$%{value} Deposit Required",
+        no_deposit = "$%{value} refundable vehicle checkout deposit required",
+        loading_queue = "Your next truck is being loaded. Approximately %{minutes} minute(s) remaining.",
+        tax_transfer = "Delivery payout pending: government tax transfer unavailable. Please try again.",
         cancelled = "Cancelled",
         vehicle_not_correct = "This is not a commercial vehicle!",
         no_driver = "You must be the driver to do this..",
@@ -13,7 +15,10 @@ local Translations = {
     success = {
         paid_with_cash = "$%{value} Deposit Paid With Cash",
         paid_with_bank = "$%{value} Deposit Paid From Bank",
-        refund_to_cash = "$%{value} Deposit Paid With Cash",
+        refund_to_cash = "$%{value} Deposit Returned",
+        checkout_deposit = "$%{value} refundable vehicle checkout deposit received. Your truck is fueled and ready; return it for a full refund.",
+        refund_to_bank = "Truck returned. Your full $%{value} vehicle checkout deposit was refunded to your bank.",
+        loading_started = "Your next truck is being prepared. Check back in approximately %{minutes} minutes.",
         you_earned = "You Earned $%{value}",
         payslip_time = "You Went To All The Shops .. Time For Your Payslip!",
     },
