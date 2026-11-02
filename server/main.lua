@@ -4,6 +4,8 @@ local Bail = {}
 RegisterNetEvent('qb-trucker:server:DoBail', function(bool, vehInfo)
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
+    if not Player then return end
+    if bool and (Player.PlayerData.job.name ~= 'jetsam' or (tonumber(Player.PlayerData.job.grade and Player.PlayerData.job.grade.level) or -1) < Config.MinimumJobGrade) then return end
     if bool then
         if Player.PlayerData.money.cash >= Config.TruckerJobTruckDeposit then
             Bail[Player.PlayerData.citizenid] = Config.TruckerJobTruckDeposit
@@ -30,7 +32,7 @@ end)
 RegisterNetEvent('qb-trucker:server:01101110', function(drops)
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
-    if not Player or Player.PlayerData.job.name ~= 'jetsam' then return end
+    if not Player or Player.PlayerData.job.name ~= 'jetsam' or (tonumber(Player.PlayerData.job.grade and Player.PlayerData.job.grade.level) or -1) < Config.MinimumJobGrade then return end
     drops = tonumber(drops)
     if not drops then return end
     drops = math.floor(drops)
