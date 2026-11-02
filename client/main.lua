@@ -379,7 +379,6 @@ local function Deliver()
         currentCount = currentCount + 1
         if currentCount == CurrentLocation.dropcount then
             LocationsDone[#LocationsDone + 1] = CurrentLocation.id
-            TriggerServerEvent("qb-shops:server:RestockShopItems", CurrentLocation.store)
             exports['qb-core']:HideText()
             Delivering = false
             showMarker = false
@@ -392,7 +391,7 @@ local function Deliver()
             CurrentLocation.zoneCombo:destroy()
             CurrentLocation = nil
             currentCount = 0
-            TriggerServerEvent("qb-trucker:server:CompleteDrop", CurrentLocation.id, { x = markerLocation.x, y = markerLocation.y, z = markerLocation.z })
+            TriggerServerEvent("qb-trucker:server:CompleteDrop", CurrentLocation.store)
             JobsDone = JobsDone + 1
             if JobsDone == Config.TruckerJobMaxDrops then
                 QBCore.Functions.Notify(Lang:t("mission.return_to_station"))
