@@ -128,12 +128,12 @@ local function MenuGarage()
 end
 
 local function SetDelivering(active)
-    if PlayerJob.name ~= "jetsam" then return end
+    if (PlayerJob.name ~= "jetsam" or (tonumber(PlayerJob.grade and PlayerJob.grade.level) or -1) < Config.MinimumJobGrade) then return end
     Delivering = active
 end
 
 local function ShowMarker(active)
-    if PlayerJob.name ~= "jetsam" then return end
+    if (PlayerJob.name ~= "jetsam" or (tonumber(PlayerJob.grade and PlayerJob.grade.level) or -1) < Config.MinimumJobGrade) then return end
     showMarker = active
 end
 
@@ -420,7 +420,7 @@ AddEventHandler('onResourceStart', function(resource)
     hasBox = false
     isWorking = false
     JobsDone = 0
-    if PlayerJob.name ~= "jetsam" then return end
+    if (PlayerJob.name ~= "jetsam" or (tonumber(PlayerJob.grade and PlayerJob.grade.level) or -1) < Config.MinimumJobGrade) then return end
     CreateElements()
 end)
 
@@ -431,7 +431,7 @@ RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
     hasBox = false
     isWorking = false
     JobsDone = 0
-    if PlayerJob.name ~= "jetsam" then return end
+    if (PlayerJob.name ~= "jetsam" or (tonumber(PlayerJob.grade and PlayerJob.grade.level) or -1) < Config.MinimumJobGrade) then return end
     CreateElements()
     TriggerServerEvent('qb-shops:server:SetShopList')
 end)
@@ -454,7 +454,7 @@ RegisterNetEvent('QBCore:Client:OnJobUpdate', function(JobInfo)
         exports['qb-core']:HideText()
         Delivering = false
         showMarker = false
-    elseif PlayerJob.name == "jetsam" then
+    elseif PlayerJob.name == "jetsam" and (tonumber(PlayerJob.grade and PlayerJob.grade.level) or -1) >= Config.MinimumJobGrade then
         CreateElements()
     end
 end)
