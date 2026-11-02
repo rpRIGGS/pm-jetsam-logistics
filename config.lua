@@ -2,6 +2,7 @@ Config = {}
 
 Config.UseTarget = GetConvar('UseTarget', 'false') == 'true'
 Config.MinimumJobGrade = 6 -- Truck Driver and higher
+Config.FuelResource = 'lc_fuel' -- Resource providing SetFuel(vehicle, level)
 
 Config.TruckerJobTruckDeposit = 125
 Config.TruckerJobFixedLocation = false
@@ -28,7 +29,11 @@ Config.TruckerJobVehicles = {
             [0] = 2,
             [1] = 3
         },
-        ["trunkpos"] = 1.5
+        ["trunkpos"] = 1.5,
+        ["livery"] = 1, -- Set to false to leave unchanged
+        ["colors"] = { primary = 122, secondary = 122 }, -- Set to false to leave unchanged
+        ["extras"] = {}, -- e.g. [1] = true, [2] = false; unspecified extras are untouched
+        ["fuel"] = 100.0
     },
     ["benson"] = {
         ["label"] = "Benson Box Truck",
@@ -36,16 +41,24 @@ Config.TruckerJobVehicles = {
         ["cargodoors"] = {
             [0] = 5
         },
-        ["trunkpos"] = 3
+        ["trunkpos"] = 3,
+        ["livery"] = 1, -- Set to false to leave unchanged
+        ["colors"] = { primary = 122, secondary = 122 }, -- Set to false to leave unchanged
+        ["extras"] = {}, -- e.g. [1] = true, [2] = false; unspecified extras are untouched
+        ["fuel"] = 100.0
     },
-    ["mule5"] = {
+    ["mule6"] = {
         ["label"] = "Mule Box Truck",
         ["jobrep"] = 0,
         ["cargodoors"] = {
             [0] = 2,
             [1] = 3
         },
-        ["trunkpos"] = 1.5
+        ["trunkpos"] = 1.5,
+        ["livery"] = 1, -- Set to false to leave unchanged
+        ["colors"] = { primary = 122, secondary = 122 }, -- Set to false to leave unchanged
+        ["extras"] = {}, -- e.g. [1] = true, [2] = false; unspecified extras are untouched
+        ["fuel"] = 100.0
     },
     ["pounder"] = {
         ["label"] = "Pounder Box Truck",
@@ -54,7 +67,11 @@ Config.TruckerJobVehicles = {
             [0] = 2,
             [1] = 3
         },
-        ["trunkpos"] = 7
+        ["trunkpos"] = 7,
+        ["livery"] = 1, -- Set to false to leave unchanged
+        ["colors"] = { primary = 122, secondary = 122 }, -- Set to false to leave unchanged
+        ["extras"] = {}, -- e.g. [1] = true, [2] = false; unspecified extras are untouched
+        ["fuel"] = 100.0
     },
     ["boxville4"] = {
         ["label"] = "Boxville StepVan",
@@ -63,6 +80,10 @@ Config.TruckerJobVehicles = {
             [0] = 2,
             [1] = 3
         },
-        ["trunkpos"] = 1.5
+        ["trunkpos"] = 1.5,
+        ["livery"] = 1, -- Set to false to leave unchanged
+        ["colors"] = { primary = 122, secondary = 122 }, -- Set to false to leave unchanged
+        ["extras"] = {}, -- e.g. [1] = true, [2] = false; unspecified extras are untouched
+        ["fuel"] = 100.0
     },
 }
