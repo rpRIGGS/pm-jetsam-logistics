@@ -37,6 +37,8 @@ RegisterNetEvent('qb-trucker:server:DoBail', function(checkout, model)
         TriggerClientEvent('qb-trucker:client:SpawnVehicle', src, model)
     else
         if not Bail[id] then return end
+        local depot = Config.TruckerJobLocations.vehicle.coords
+        if #(GetEntityCoords(GetPlayerPed(src)) - vector3(depot.x, depot.y, depot.z)) > 30.0 then return end
         player.Functions.AddMoney('bank', Bail[id], 'jetsam-vehicle-return')
         Bail[id] = nil
         NextCheckout[id] = os.time() + Config.TruckerJobCooldown
@@ -52,22 +54,21 @@ RegisterNetEvent('qb-trucker:server:DoBail', function(checkout, model)
     end
 end)
 
--- A completed location is counted only once per run. The server also checks proximity
--- to the player's reported location; a trusted server-side shop list is still required
--- for full anti-cheat verification.
-RegisterNetEvent('qb-trucker:server:CompleteDrop', function(locationId, coords)
+-- Only server-defined qb-shops delivery coordinates qualify for payment.
+RegisterNetEvent('qb-trucker:server:CompleteDrop', function(shop)
     local src = source
     local player = QBCore.Functions.GetPlayer(src)
-    if not eligible(player) then return end
+    if not eligible(player) or type(shop) ~= 'string' then return end
     local route = Routes[player.PlayerData.citizenid]
     if not route or not route.active or route.drops >= Config.TruckerJobMaxDrops then return end
-    if type(locationId) ~= 'number' and type(locationId) ~= 'string' then return end
-    if type(coords) ~= 'table' or type(coords.x) ~= 'number' or type(coords.y) ~= 'number' or type(coords.z) ~= 'number' then return end
-    local pos = GetEntityCoords(GetPlayerPed(src))
-    if #(pos - vector3(coords.x, coords.y, coords.z)) > 15.0 then return end
     route.completed = route.completed or {}
-    if route.completed[tostring(locationId)] then return end
-    route.completed[tostring(locationId)] = true
+    if route.completed[shop] then return end
+    local ok, stop = pcall(function() return exports['qb-shops']:GetDeliveryStop(shop) end)
+    if not ok or not stop then return end
+    if #(GetEntityCoords(GetPlayerPed(src)) - vector3(stop.x, stop.y, stop.z)) > 10.0 then return end
+    local restocked, success = pcall(function() return exports['qb-shops']:RestockFromJetsam(shop) end)
+    if not restocked or success ~= true then return end
+    route.completed[shop] = true
     route.drops = route.drops + 1
 end)
 
@@ -78,6 +79,8 @@ RegisterNetEvent('qb-trucker:server:01101110', function()
     local id = player.PlayerData.citizenid
     local route = Routes[id]
     if not route or route.active or route.drops < 1 then return end
+    local depot = Config.TruckerJobLocations.main.coords
+    if #(GetEntityCoords(GetPlayerPed(src)) - vector3(depot.x, depot.y, depot.z)) > 15.0 then return end
     local drops = route.drops
     local base = drops * Config.TruckerJobDropPrice
     local bonus = drops >= 5 and math.floor(base * Config.TruckerJobBonus / 100 + 0.5) or 0
