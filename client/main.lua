@@ -529,18 +529,16 @@ end)
 RegisterNetEvent('qb-truckerjob:client:PaySlip', function()
     if JobsDone > 0 then
         TriggerServerEvent("qb-trucker:server:01101110")
-        JobsDone = 0
-        if #LocationsDone == #Config.TruckerJobLocations["stores"] then
-            LocationsDone = {}
-        end
-        if CurrentBlip ~= nil then
-            RemoveBlip(CurrentBlip)
-            ClearAllBlipRoutes()
-            CurrentBlip = nil
-        end
     else
         QBCore.Functions.Notify(Lang:t("error.no_work_done"), "error")
     end
+end)
+
+RegisterNetEvent('qb-trucker:client:PayoutComplete', function()
+    JobsDone = 0
+    LocationsDone = {}
+    if CurrentBlip then RemoveBlip(CurrentBlip) CurrentBlip = nil end
+    ClearAllBlipRoutes()
 end)
 
 RegisterNetEvent('qb-truckerjob:client:SetShopList', function(shoplist)
