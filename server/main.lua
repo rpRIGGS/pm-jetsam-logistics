@@ -30,7 +30,7 @@ end)
 RegisterNetEvent('qb-trucker:server:01101110', function(drops)
     local src = source
     local Player = QBCore.Functions.GetPlayer(src)
-    if not Player or Player.PlayerData.job.name ~= 'trucker' then return end
+    if not Player or Player.PlayerData.job.name ~= 'jetsam' then return end
     drops = tonumber(drops)
     if not drops then return end
     drops = math.floor(drops)
