@@ -7,9 +7,11 @@ Config.FuelResource = 'lc_fuel' -- Resource providing SetFuel(vehicle, level)
 Config.TruckerJobTruckDeposit = 125
 Config.TruckerJobFixedLocation = false
 Config.TruckerJobMaxDrops = 20 -- amount of locations before being forced to return to station to reload
-Config.TruckerJobDropPrice = 500
+Config.TruckerJobDropPrice = 15
 Config.TruckerJobBonus = 20 -- this is a percentage to calculate bonus over 5 deliveries.
 Config.TruckerJobPaymentTax = 15
+Config.TruckerJobCooldown = 300 -- Seconds between vehicle checkouts
+Config.TruckerJobTaxAccount = 'sagov' -- qb-banking society account name
 
 Config.TruckerJobLocations = {
     ["main"] = {
