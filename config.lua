@@ -1,7 +1,7 @@
 Config = {}
 
 Config.UseTarget = GetConvar('UseTarget', 'false') == 'true'
-Config.MinimumJobGrade = 0 -- Minimum jetsam job grade allowed to work deliveries
+Config.MinimumJobGrade = 6 -- Truck Driver and higher
 
 Config.TruckerJobTruckDeposit = 125
 Config.TruckerJobFixedLocation = false
