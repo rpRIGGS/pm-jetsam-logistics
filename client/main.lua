@@ -54,9 +54,12 @@ local function getNextLocation()
             end
         end
     else
-        while hasDoneLocation(current) do
-            current = math.random(#Config.TruckerJobLocations["stores"])
+        local available = {}
+        for i = 1, #Config.TruckerJobLocations["stores"] do
+            if not hasDoneLocation(i) then available[#available + 1] = i end
         end
+        if #available == 0 then return 0 end
+        current = available[math.random(#available)]
     end
 
     return current
