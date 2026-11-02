@@ -1,62 +1,105 @@
 local QBCore = exports['qb-core']:GetCoreObject()
 local Bail = {}
+local Routes = {}
+local NextCheckout = {}
 
-RegisterNetEvent('qb-trucker:server:DoBail', function(bool, vehInfo)
+local function eligible(player)
+    return player and player.PlayerData.job.name == 'jetsam'
+        and (tonumber(player.PlayerData.job.grade and player.PlayerData.job.grade.level) or -1) >= Config.MinimumJobGrade
+end
+
+local function notify(src, key, values, kind)
+    TriggerClientEvent('QBCore:Notify', src, Lang:t(key, values), kind or 'primary')
+end
+
+RegisterNetEvent('qb-trucker:server:DoBail', function(checkout, model)
     local src = source
-    local Player = QBCore.Functions.GetPlayer(src)
-    if not Player then return end
-    if bool and (Player.PlayerData.job.name ~= 'jetsam' or (tonumber(Player.PlayerData.job.grade and Player.PlayerData.job.grade.level) or -1) < Config.MinimumJobGrade) then return end
-    if bool then
-        if Player.PlayerData.money.cash >= Config.TruckerJobTruckDeposit then
-            Bail[Player.PlayerData.citizenid] = Config.TruckerJobTruckDeposit
-            Player.Functions.RemoveMoney('cash', Config.TruckerJobTruckDeposit, 'tow-received-bail')
-            TriggerClientEvent('QBCore:Notify', src, Lang:t('success.paid_with_cash', { value = Config.TruckerJobTruckDeposit }), 'success')
-            TriggerClientEvent('qb-trucker:client:SpawnVehicle', src, vehInfo)
-        elseif Player.PlayerData.money.bank >= Config.TruckerJobTruckDeposit then
-            Bail[Player.PlayerData.citizenid] = Config.TruckerJobTruckDeposit
-            Player.Functions.RemoveMoney('bank', Config.TruckerJobTruckDeposit, 'tow-received-bail')
-            TriggerClientEvent('QBCore:Notify', src, Lang:t('success.paid_with_bank', { value = Config.TruckerJobTruckDeposit }), 'success')
-            TriggerClientEvent('qb-trucker:client:SpawnVehicle', src, vehInfo)
-        else
-            TriggerClientEvent('QBCore:Notify', src, Lang:t('error.no_deposit', { value = Config.TruckerJobTruckDeposit }), 'error')
+    local player = QBCore.Functions.GetPlayer(src)
+    if not eligible(player) then return end
+    local id = player.PlayerData.citizenid
+    if checkout then
+        if not Config.TruckerJobVehicles[model] or Bail[id] then return end
+        local remaining = (NextCheckout[id] or 0) - os.time()
+        if remaining > 0 then
+            notify(src, 'error.loading_queue', { minutes = math.ceil(remaining / 60) }, 'error')
+            return
         end
+        local method = player.PlayerData.money.cash >= Config.TruckerJobTruckDeposit and 'cash'
+            or player.PlayerData.money.bank >= Config.TruckerJobTruckDeposit and 'bank' or nil
+        if not method then
+            notify(src, 'error.no_deposit', { value = Config.TruckerJobTruckDeposit }, 'error')
+            return
+        end
+        if not player.Functions.RemoveMoney(method, Config.TruckerJobTruckDeposit, 'jetsam-vehicle-checkout') then return end
+        Bail[id] = Config.TruckerJobTruckDeposit
+        Routes[id] = { drops = 0, active = true, lastLocation = nil }
+        notify(src, 'success.checkout_deposit', { value = Config.TruckerJobTruckDeposit }, 'success')
+        TriggerClientEvent('qb-trucker:client:SpawnVehicle', src, model)
     else
-        if Bail[Player.PlayerData.citizenid] then
-            Player.Functions.AddMoney('cash', Bail[Player.PlayerData.citizenid], 'trucker-bail-paid')
-            Bail[Player.PlayerData.citizenid] = nil
-            TriggerClientEvent('QBCore:Notify', src, Lang:t('success.refund_to_cash', { value = Config.TruckerJobTruckDeposit }), 'success')
-        end
+        if not Bail[id] then return end
+        player.Functions.AddMoney('bank', Bail[id], 'jetsam-vehicle-return')
+        Bail[id] = nil
+        NextCheckout[id] = os.time() + Config.TruckerJobCooldown
+        if Routes[id] then Routes[id].active = false end
+        notify(src, 'success.refund_to_bank', { value = Config.TruckerJobTruckDeposit }, 'success')
+        notify(src, 'success.loading_started', { minutes = math.ceil(Config.TruckerJobCooldown / 60) }, 'primary')
     end
 end)
 
-RegisterNetEvent('qb-trucker:server:01101110', function(drops)
+-- A completed location is counted only once per run. The server also checks proximity
+-- to the player's reported location; a trusted server-side shop list is still required
+-- for full anti-cheat verification.
+RegisterNetEvent('qb-trucker:server:CompleteDrop', function(locationId, coords)
     local src = source
-    local Player = QBCore.Functions.GetPlayer(src)
-    if not Player or Player.PlayerData.job.name ~= 'jetsam' or (tonumber(Player.PlayerData.job.grade and Player.PlayerData.job.grade.level) or -1) < Config.MinimumJobGrade then return end
-    drops = tonumber(drops)
-    if not drops then return end
-    drops = math.floor(drops)
-    if drops < 1 then return end
-    if drops > Config.TruckerJobMaxDrops then
-        drops = Config.TruckerJobMaxDrops
-    end
-    local bonus = 0
+    local player = QBCore.Functions.GetPlayer(src)
+    if not eligible(player) then return end
+    local route = Routes[player.PlayerData.citizenid]
+    if not route or not route.active or route.drops >= Config.TruckerJobMaxDrops then return end
+    if type(locationId) ~= 'number' and type(locationId) ~= 'string' then return end
+    if type(coords) ~= 'table' or type(coords.x) ~= 'number' or type(coords.y) ~= 'number' or type(coords.z) ~= 'number' then return end
+    local pos = GetEntityCoords(GetPlayerPed(src))
+    if #(pos - vector3(coords.x, coords.y, coords.z)) > 15.0 then return end
+    route.completed = route.completed or {}
+    if route.completed[tostring(locationId)] then return end
+    route.completed[tostring(locationId)] = true
+    route.drops = route.drops + 1
+end)
 
-    if drops >= 5 then
-        if Config.TruckerJobBonus < 0 then Config.TruckerJobBonus = 0 end
-        bonus = (math.ceil(Config.TruckerJobDropPrice / 100) * Config.TruckerJobBonus) * drops
+RegisterNetEvent('qb-trucker:server:01101110', function()
+    local src = source
+    local player = QBCore.Functions.GetPlayer(src)
+    if not eligible(player) then return end
+    local id = player.PlayerData.citizenid
+    local route = Routes[id]
+    if not route or route.active or route.drops < 1 then return end
+    local drops = route.drops
+    local base = drops * Config.TruckerJobDropPrice
+    local bonus = drops >= 5 and math.floor(base * Config.TruckerJobBonus / 100 + 0.5) or 0
+    local gross = base + bonus
+    local tax = math.floor(gross * Config.TruckerJobPaymentTax / 100 + 0.5)
+    local payment = gross - tax
+    -- Don't consume the route or pay out unless the government tax transfer succeeds.
+    if tax > 0 then
+        local ok, result = pcall(function()
+            return exports['qb-banking']:AddMoney(Config.TruckerJobTaxAccount, tax, 'Jetsam delivery income tax')
+        end)
+        if not ok or result == false then
+            print(('[qb-truckerjob] SAGOV tax transfer failed for %s: %s'):format(id, tostring(result)))
+            notify(src, 'error.tax_transfer', {}, 'error')
+            return
+        end
     end
-    local payment = (Config.TruckerJobDropPrice * drops + bonus)
-    payment = payment - (math.ceil(payment / 100) * Config.TruckerJobPaymentTax)
-    Player.Functions.AddJobReputation(drops)
-    Player.Functions.AddMoney('bank', payment, 'trucker-salary')
-    TriggerClientEvent('QBCore:Notify', src, Lang:t('success.you_earned', { value = payment }), 'success')
+    Routes[id] = nil
+    player.Functions.AddJobReputation(drops)
+    player.Functions.AddMoney('bank', payment, 'jetsam-delivery-earnings')
+    notify(src, 'success.you_earned', { value = payment }, 'success')
 end)
 
 RegisterNetEvent('qb-trucker:server:nano', function()
-    local chance = math.random(1, 100)
-    if chance > 26 then return end
-    local xPlayer = QBCore.Functions.GetPlayer(tonumber(source))
-    xPlayer.Functions.AddItem('cryptostick', 1, false)
+    -- Preserve the original optional reward, limited to authorized active drivers.
+    local player = QBCore.Functions.GetPlayer(source)
+    if not eligible(player) or not Routes[player.PlayerData.citizenid] or not Routes[player.PlayerData.citizenid].active then return end
+    if math.random(1, 100) > 26 then return end
+    player.Functions.AddItem('cryptostick', 1, false)
     TriggerClientEvent('inventory:client:ItemBox', source, QBCore.Shared.Items['cryptostick'], 'add')
 end)
