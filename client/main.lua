@@ -261,6 +261,7 @@ local function getNewLocation()
         CurrentLocation.id = location
         CurrentLocation.dropcount = math.random(1, 3)
         CurrentLocation.store = Config.TruckerJobLocations["stores"][location].name
+        TriggerServerEvent("qb-trucker:server:AssignStop", CurrentLocation.store)
         CurrentLocation.x = Config.TruckerJobLocations["stores"][location].coords.x
         CurrentLocation.y = Config.TruckerJobLocations["stores"][location].coords.y
         CurrentLocation.z = Config.TruckerJobLocations["stores"][location].coords.z
