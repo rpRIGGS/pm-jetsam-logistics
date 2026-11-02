@@ -43,6 +43,12 @@ RegisterNetEvent('qb-trucker:server:DoBail', function(checkout, model)
         if Routes[id] then Routes[id].active = false end
         notify(src, 'success.refund_to_bank', { value = Config.TruckerJobTruckDeposit }, 'success')
         notify(src, 'success.loading_started', { minutes = math.ceil(Config.TruckerJobCooldown / 60) }, 'primary')
+        SetTimeout(Config.TruckerJobCooldown * 1000, function()
+            local current = QBCore.Functions.GetPlayer(src)
+            if current and current.PlayerData.citizenid == id and not Bail[id] and os.time() >= (NextCheckout[id] or 0) then
+                notify(src, 'success.loading_ready', {}, 'success')
+            end
+        end)
     end
 end)
 
