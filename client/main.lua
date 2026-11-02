@@ -497,10 +497,14 @@ end)
 
 RegisterNetEvent('qb-truckerjob:client:Vehicle', function()
     if IsPedInAnyVehicle(PlayerPedId()) and isTruckerVehicle(GetVehiclePedIsIn(PlayerPedId(), false)) then
+        if CurrentPlate ~= QBCore.Functions.GetPlate(GetVehiclePedIsIn(PlayerPedId(), false)) then
+            return QBCore.Functions.Notify(Lang:t("error.vehicle_not_correct"), "error")
+        end
         if GetPedInVehicleSeat(GetVehiclePedIsIn(PlayerPedId()), -1) == PlayerPedId() then
             if isTruckerVehicle(GetVehiclePedIsIn(PlayerPedId(), false)) then
                 DeleteVehicle(GetVehiclePedIsIn(PlayerPedId()))
                 TriggerServerEvent('qb-trucker:server:DoBail', false)
+                CurrentPlate = nil
                 if CurrentBlip ~= nil then
                     RemoveBlip(CurrentBlip)
                     ClearAllBlipRoutes()
