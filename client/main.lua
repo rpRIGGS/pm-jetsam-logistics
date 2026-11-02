@@ -392,6 +392,7 @@ local function Deliver()
             CurrentLocation.zoneCombo:destroy()
             CurrentLocation = nil
             currentCount = 0
+            TriggerServerEvent("qb-trucker:server:CompleteDrop", CurrentLocation.id, { x = markerLocation.x, y = markerLocation.y, z = markerLocation.z })
             JobsDone = JobsDone + 1
             if JobsDone == Config.TruckerJobMaxDrops then
                 QBCore.Functions.Notify(Lang:t("mission.return_to_station"))
@@ -491,8 +492,8 @@ end)
 
 RegisterNetEvent('qb-trucker:client:TakeOutVehicle', function(data)
     local vehicleInfo = data.vehicle
-    TriggerServerEvent('qb-trucker:server:DoBail', true, vehicleInfo)
     selectedVeh = vehicleInfo
+    TriggerServerEvent('qb-trucker:server:DoBail', true, vehicleInfo)
 end)
 
 RegisterNetEvent('qb-truckerjob:client:Vehicle', function()
@@ -524,7 +525,7 @@ end)
 
 RegisterNetEvent('qb-truckerjob:client:PaySlip', function()
     if JobsDone > 0 then
-        TriggerServerEvent("qb-trucker:server:01101110", JobsDone)
+        TriggerServerEvent("qb-trucker:server:01101110")
         JobsDone = 0
         if #LocationsDone == #Config.TruckerJobLocations["stores"] then
             LocationsDone = {}
