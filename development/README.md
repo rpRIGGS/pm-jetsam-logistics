@@ -15,3 +15,7 @@ This repository is a PowerMoves RP-specific fork of [qbcore-framework/qb-trucker
 store restock deliveries, assigned routes, pickup/receiving points, commercial distribution, and future Jetsam business operations.
 
 Documentation in this folder is planning/reference material, not a claim that the integrations are already implemented.
+
+## Current development status
+
+The trucker fork now includes grade-based Jetsam access, per-model vehicle appearance, Mule6, LC Fuel, checkout deposits, a preparation interval, revised delivery compensation, government tax posting and companion shop integration. The implementation has not been tested on a FiveM server. See the development changelog for amounts and integration details. Future dispatch, logistics management and Marlowe connections remain deferred.
