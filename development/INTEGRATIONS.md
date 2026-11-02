@@ -25,3 +25,7 @@ pm-shops (shop replenishment); pm-marlowe (wholesale orders and warehouse pickin
 - Installed QBCore and customized qb-inventory behavior on the development server.
 - Idempotency, partial fulfillment, offline restocking, and ownership of payment records.
 - Receiving location and delivery route configuration, including future Jetsam dispatch.
+
+## Implemented companion interface
+
+The matching qb-shops runtime resource exposes GetDeliveryStop(shop) and RestockFromJetsam(shop) server exports, and supplies the trucker client with delivery stops through SetShopList. Jetsam tracks assigned shop stops and sends validated restocks through the companion exports. Income tax uses qb-banking and the sagov job society key. Both forks require coordinated deployment. FiveM runtime testing is pending.
