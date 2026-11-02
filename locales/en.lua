@@ -19,6 +19,7 @@ local Translations = {
         checkout_deposit = "$%{value} refundable vehicle checkout deposit received. Your truck is fueled and ready; return it for a full refund.",
         refund_to_bank = "Truck returned. Your full $%{value} vehicle checkout deposit was refunded to your bank.",
         loading_started = "Your next truck is being prepared. Check back in approximately %{minutes} minutes.",
+        loading_ready = "Your next Jetsam delivery truck is loaded and ready for checkout.",
         you_earned = "You Earned $%{value}",
         payslip_time = "You Went To All The Shops .. Time For Your Payslip!",
     },
