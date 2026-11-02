@@ -128,12 +128,12 @@ local function MenuGarage()
 end
 
 local function SetDelivering(active)
-    if PlayerJob.name ~= "trucker" then return end
+    if PlayerJob.name ~= "jetsam" then return end
     Delivering = active
 end
 
 local function ShowMarker(active)
-    if PlayerJob.name ~= "trucker" then return end
+    if PlayerJob.name ~= "jetsam" then return end
     showMarker = active
 end
 
@@ -420,7 +420,7 @@ AddEventHandler('onResourceStart', function(resource)
     hasBox = false
     isWorking = false
     JobsDone = 0
-    if PlayerJob.name ~= "trucker" then return end
+    if PlayerJob.name ~= "jetsam" then return end
     CreateElements()
 end)
 
@@ -431,7 +431,7 @@ RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
     hasBox = false
     isWorking = false
     JobsDone = 0
-    if PlayerJob.name ~= "trucker" then return end
+    if PlayerJob.name ~= "jetsam" then return end
     CreateElements()
     TriggerServerEvent('qb-shops:server:SetShopList')
 end)
@@ -448,13 +448,13 @@ end)
 RegisterNetEvent('QBCore:Client:OnJobUpdate', function(JobInfo)
     local OldPlayerJob = PlayerJob.name
     PlayerJob = JobInfo
-    if OldPlayerJob == "trucker" then
+    if OldPlayerJob == "jetsam" then
         RemoveTruckerBlips()
         zoneCombo:destroy()
         exports['qb-core']:HideText()
         Delivering = false
         showMarker = false
-    elseif PlayerJob.name == "trucker" then
+    elseif PlayerJob.name == "jetsam" then
         CreateElements()
     end
 end)
